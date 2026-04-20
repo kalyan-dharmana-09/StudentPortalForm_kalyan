@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Flow – Black & Gold</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Flower Ripples Background */
+    #flower-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 90%;
+      max-width: 680px;
+      max-height: 90vh;
+      background: radial-gradient(circle, #282828, #000);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6),
+                  0 0 0 1px rgba(255,215,0,0.3);
+      border: 1px solid rgba(255,215,0,0.15);
+      overflow: hidden;
+      animation: fadeIn 0.7s ease-out;
+    }
+
+    .header {
+      text-align: center;
+      padding: 24px 12px;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      position: relative;
+    }
+    .header::before {
+      position: absolute;
+      left: 20px;
+      top: 18px;
+      font-size: 30px;
+    }
+    .header {
+      background: linear-gradient(45deg, #000, #121212);
+      color: #ffd700;
+      border-bottom: 3px solid #ffd700;
+      text-shadow: 0 0 8px rgba(255,215,0,0.4);
+    }
+    .header.acad {
+      background: linear-gradient(45deg, #023020, #035020);
+      color: #e0f7fa;
+      border-bottom: 3px solid #00ff80;
+      text-shadow: 0 0 6px rgba(0,255,128,0.3);
+    }
+    .header.quiz {
+      background: linear-gradient(45deg, #300000, #4a0000);
+      color: #ffeb3b;
+      border-bottom: 3px solid #fff350;
+      text-shadow: 0 0 8px rgba(255,215,0,0.4);
+    }
+    .header.done {
+      background: linear-gradient(45deg, #4a003a, #600050);
+      color: #ffd700;
+      border-bottom: 3px solid #ffd700;
+      text-shadow: 0 0 6px rgba(255,215,0,0.4);
+    }
+
+    .content {
+      padding: 32px 28px 26px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #e6e6e6;
+      font-size: 15px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"] {
+      width: 100%;
+      padding: 13px 15px;
+      border: 2px solid #404040;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #080808;
+      color: #fff;
+      margin-bottom: 18px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 0 4px rgba(255,215,0,0.15);
+      outline: none;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.25s;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(255,215,0,0.25);
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(255,215,0,0.35);
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(255,215,0,0.25);
+    }
+    .btn-reload {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      margin-top: 14px;
+      background: #800000;
+      color: #ffd700;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      transition: transform 0.12s, background 0.25s;
+    }
+    .btn-reload:hover {
+      background: #990000;
+      transform: translateY(-2px);
+    }
+    .btn-reload:active {
+      transform: translateY(0);
+    }
+    .poster {
+      text-align: center;
+      margin: 16px 0 20px;
+      font-size: 58px;
+      animation: bounce 1.4s infinite alternate;
+      text-shadow: 0 0 8px rgba(255,215,0,0.6), 0 0 16px rgba(255,215,0,0.3);
+    }
+    .poster.acad { font-size: 50px; }
+    .poster.quiz { font-size: 54px; }
+    .poster.done { font-size: 46px; }
+
+    .quiz .q {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,215,0,0.07);
+      border: 1px solid rgba(255,215,0,0.14);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .quiz label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 7px;
+      cursor: pointer;
+      padding: 6px 7px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+      color: #e0e0e0;
+    }
+    .quiz label:hover {
+      background-color: rgba(255,215,0,0.11);
+    }
+    .quiz input[type="radio"] {
+      margin-right: 10px;
+      accent-color: #ffd700;
+    }
+    .results {
+      background: rgba(0,0,0,0.6);
+      border: 1px dashed #ffd700;
+      padding: 22px;
+      border-radius: 12px;
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #f0f8ff;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    .score-badge {
+      display: inline-block;
+      background: #006400;
+      color: #ffd700;
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 13px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+      to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Flower Ripples Canvas -->
+  <canvas id="flower-canvas"></canvas>
+
+  <div id="form" class="container">
+    <div class="header">
+      STUDENT INFORMATION 🎓
+    </div>
+    <div class="content">
+      <div class="poster">🎓</div>
+      <form id="studentForm">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter your full name" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter password" required />
+
+        <button type="submit" class="btn">SUBMIT → ACADEMIC INFO</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+// ==================== FLOWER RIPPLES ANIMATION ====================
+const canvas = document.getElementById('flower-canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+const flowers = [];
+const ripples = [];
+
+class Flower {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.size = Math.random() * 18 + 12;
+    this.speed = Math.random() * 0.8 + 0.4;
+    this.angle = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.03;
+    this.opacity = Math.random() * 0.6 + 0.3;
+    this.hue = 40 + Math.random() * 25; // Golden-yellow tones
+  }
+  update() {
+    this.y -= this.speed;
+    this.angle += this.rotationSpeed;
+    if (this.y < -50) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.globalAlpha = this.opacity;
+
+    // Draw flower (simple 5-petal)
+    ctx.fillStyle = `hsl(${this.hue}, 90%, 65%)`;
+    for (let i = 0; i < 5; i++) {
+      ctx.rotate(Math.PI * 2 / 5);
+      ctx.beginPath();
+      ctx.ellipse(0, -this.size/2.5, this.size/2.8, this.size/1.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Center
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath();
+    ctx.arc(0, 0, this.size/3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+class Ripple {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 10;
+    this.maxRadius = 120 + Math.random() * 60;
+    this.opacity = 0.6;
+    this.speed = 1.8;
+  }
+  update() {
+    this.radius += this.speed;
+    this.opacity -= 0.012;
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function resizeCanvas() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+}
+
+function animate() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.fillRect(0, 0, width, height);
+
+  // Update and draw flowers
+  for (let flower of flowers) {
+    flower.update();
+    flower.draw();
+  }
+
+  // Update and draw ripples
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    ripples[i].update();
+    ripples[i].draw();
+    if (ripples[i].opacity <= 0) ripples.splice(i, 1);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Create flowers
+function initFlowers() {
+  flowers.length = 0;
+  for (let i = 0; i < 35; i++) {
+    flowers.push(new Flower());
+  }
+}
+
+// Random ripple generator
+setInterval(() => {
+  if (Math.random() > 0.4) {
+    ripples.push(new Ripple(
+      Math.random() * width,
+      Math.random() * height * 0.7
+    ));
+  }
+}, 280);
+
+// Click/touch creates stronger ripples
+canvas.addEventListener('click', (e) => {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      ripples.push(new Ripple(e.clientX, e.clientY));
+    }, i * 80);
+  }
+});
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  initFlowers();
+});
+
+// ==================== ORIGINAL FORM LOGIC ====================
+const container = document.querySelector(".container");
+
+const questions = [
+  { q: "Which IPL team has the most titles till 2023?", options: ["Mumbai Indians", "Chennai Super Kings", "Kolkata Knight Riders", "Royal Challengers Bengaluru"], correct: 0 },
+ 
+  
+  { q: "Which legendary player captained CSK in IPL?", options: ["Rohit Sharma", "Virat Kohli", "MS Dhoni", "KL Rahul"], correct: 2 },
+  { q: "Which team is based in Hyderabad?", options: ["DC", "PBKS", "SRH", "LSG"], correct: 2 }
+];
+
+function setupStudentForm() {
+  const studentForm = document.getElementById("studentForm");
+  studentForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!name || !email || !password) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
+    localStorage.setItem("password", password);
+    renderAcademicForm();
+  });
+}
+
+function renderAcademicForm() {
+  container.innerHTML = `
+    <div class="header acad">ACADEMIC INFORMATION 🏫</div>
+    <div class="content">
+      <div class="poster acad">🎓🏫</div>
+      <form id="academicForm">
+        <label for="college">College Name</label>
+        <input type="text" id="college" placeholder="Enter your college name" required />
+        <label for="cgpa">CGPA</label>
+        <input type="number" step="0.01" min="0" max="10" id="cgpa" placeholder="e.g. 8.5" required />
+        <button type="submit" class="btn">SUBMIT → QUIZ</button>
+      </form>
+    </div>
+  `;
+
+  document.getElementById("academicForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const college = document.getElementById("college").value.trim();
+    const cgpa = parseFloat(document.getElementById("cgpa").value);
+    if (!college || isNaN(cgpa)) return alert("Please enter valid college and CGPA.");
+
+    localStorage.setItem("college", college);
+    localStorage.setItem("cgpa", cgpa);
+    renderQuiz();
+  });
+}
+
+function renderQuiz() {
+  let optionsHtml = "";
+  questions.forEach((q, i) => {
+    optionsHtml += `<div class="q">
+      <strong>Q${i+1}. ${q.q}</strong>
+      <div>${q.options.map((opt, j) => `
+        <label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>
+      `).join('')}</div>
+    </div>`;
+  });
+
+  container.innerHTML = `
+    <div class="header quiz">IPL QUIZ TIME 🏏</div>
+    <div class="content">
+      <div class="poster quiz">🏏🏆</div>
+      <form id="quizForm">${optionsHtml}<button type="submit" class="btn">SUBMIT → RESULT</button></form>
+    </div>
+  `;
+
+  document.getElementById("quizForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    let score = 0, valid = true;
+    for (let i = 0; i < questions.length; i++) {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      if (!selected) { valid = false; break; }
+      if (parseInt(selected.value) === questions[i].correct) score++;
+    }
+    if (!valid) return alert("Please answer all questions.");
+    localStorage.setItem("score", score);
+    renderDone();
+  });
+}
+
+function renderDone() {
+  const name = localStorage.getItem("name") || "Not provided";
+  const email = localStorage.getItem("email") || "Not provided";
+  const password = localStorage.getItem("password") || "";
+  const college = localStorage.getItem("college") || "Not provided";
+  const cgpa = localStorage.getItem("cgpa") || "Not provided";
+  const score = localStorage.getItem("score") || 0;
+
+  container.innerHTML = `
+    <div class="header done">REGISTRATION COMPLETED ✅</div>
+    <div class="content">
+      <div class="poster done">🎓✅🏏</div>
+      <p><strong>👤 Name:</strong> ${name}</p>
+      <p><strong>📧 Email:</strong> ${email}</p>
+      <p><strong>🔒 Password:</strong> ${"*".repeat(Math.min(password.length, 8))}</p>
+      <p><strong>🏫 College:</strong> ${college}</p>
+      <p><strong>📈 CGPA:</strong> ${cgpa}</p>
+      <div class="results">
+        <p><strong>🎉 IPL Quiz Result:</strong></p>
+        <p>You scored <strong>${score}/${questions.length}</strong> correct answers.</p>
+        <span class="score-badge">Score: ${score}/${questions.length}</span>
+      </div>
+      <button id="reloadBtn" class="btn-reload">🔄 RELOAD & START AGAIN</button>
+    </div>
+  `;
+
+  document.getElementById("reloadBtn").addEventListener("click", () => {
+    localStorage.clear();
+    location.reload();
+  });
+}
+
+// Initialize everything
+resizeCanvas();
+initFlowers();
+animate();
+
+if (localStorage.getItem("score")) renderDone();
+else if (localStorage.getItem("college")) renderQuiz();
+else if (localStorage.getItem("name")) renderAcademicForm();
+else setupStudentForm();
+</script>
+</body>
+</html>
